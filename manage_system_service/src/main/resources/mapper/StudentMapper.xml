@@ -1,0 +1,249 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hang.manage.system.mapper.StudentMapper">
+
+
+    <resultMap type="com.hang.manage.system.domain.Student" id="Result">
+        <id column="id" jdbcType="INTEGER" property="id"/>
+        <result column="snumber" jdbcType="VARCHAR" property="snumber"/>
+        <result column="sname" jdbcType="VARCHAR" property="sname"/>
+        <result column="spassword" jdbcType="VARCHAR" property="spassword"/>
+        <result column="tnumber" jdbcType="VARCHAR" property="tnumber"/>
+        <result column="semail" jdbcType="VARCHAR" property="semail"/>
+        <result column="sage" jdbcType="INTEGER" property="sage"/>
+        <result column="ssex" jdbcType="VARCHAR" property="ssex"/>
+        <result column="score" jdbcType="INTEGER" property="score"/>
+        <result column="entertime" jdbcType="VARCHAR" property="entertime"/>
+        <result column="major" javaType="INTEGER" property="major"/>
+        <result column="sphone" jdbcType="VARCHAR" property="sphone"/>
+        <collection property="collegeMajor" ofType="com.hang.manage.system.domain.CollegeMajor">
+            <id column="id" jdbcType="INTEGER" property="id"/>
+            <result column="parentid" jdbcType="INTEGER" property="parentid"/>
+            <result column="name" jdbcType="VARCHAR" property="name"/>
+        </collection>
+    </resultMap>
+
+
+
+    <resultMap id="returnCount" type="com.hang.manage.system.vo.ReplyArrangeReturn">
+        <result column="defensegroup" property="defensegroup" jdbcType="VARCHAR" />
+        <result column="count(1)" property="count" jdbcType="INTEGER"/>
+        <result column="place" property="place" jdbcType="VARCHAR"/>
+        <result column="replytime" property="replytime" jdbcType="VARCHAR"/>
+    </resultMap>
+
+
+
+
+    <select id="login" resultType="com.hang.manage.system.domain.Student" parameterType="string">
+    SELECT snumber,spassword from student where snumber=#{snumber}
+    </select>
+
+
+    <update id="update_stu_tnumber">
+    UPDATE Student set tnumber=#{tnumber} WHERE snumber=#{snumber}
+  </update>
+
+
+    <select id="select_student_info" parameterType="String" resultMap="Result">
+    SELECT *  from student
+    INNER JOIN college_major on student.major=college_major.id
+    where student.snumber=#{snumber}
+  </select>
+
+    <update id="update_stu_paper" parameterType="com.hang.manage.system.domain.Student">
+    UPDATE student SET paperid=#{paperid} where tnumber=#{snumber}
+  </update>
+
+
+
+    <update id="tea_make_score">
+    UPDATE student SET  score=#{socre}  where snumber=#{snumber}
+  </update>
+
+    <select id="guide_fuzzy_search" resultType="com.hang.manage.system.domain.Student">
+        SELECT * FROM student WHERE CONCAT(IFNULL(`snumber`,''),IFNULL(`sname`,'')) LIKE "%"#{content}"%"
+        and major in
+        <foreach collection="list" item="p" open="(" close=")" separator=",">
+            #{p}
+        </foreach>
+    </select>
+
+    <select id="select_password" parameterType="string" resultType="string">
+    SELECT spassword from student WHERE snumber=#{snumber}
+  </select>
+    <update id="Update_info" parameterType="com.hang.manage.system.domain.Student">
+        UPDATE student
+        <set>
+            <if test="ssex != null and sname != ''">
+                ssex=#{ssex},
+            </if>
+            <if test="semail != null and sname != ''">
+                semail=#{semail},
+            </if>
+
+            <if test="sphone != null and sphone != ''">
+                sphone=#{sphone}
+            </if>
+        </set>
+        where snumber =#{snumber}
+    </update>
+    <update id="update_password">
+    UPDATE student SET spassword=#{newpassword} where snumber=#{snumber}
+  </update>
+
+
+    <update id="forget_update_password">
+        UPDATE student SET  spassword=#{newpassword} where semail=#{email}
+    </update>
+
+    <select id="get_stu_coll" resultMap="Result">
+        SELECT *  from student
+     INNER JOIN college_major on student.major=college_major.id
+    </select>
+
+    <update id="updateStudent" parameterType="com.hang.manage.system.domain.Student">
+        UPDATE student
+        <set>
+            <if test="student.snumber != null and student.snumber != ''">
+                snumber=#{student.snumber},
+            </if>
+            <if test="student.sname != null and student.sname != ''">
+                sname=#{student.sname},
+            </if>
+            <if test="student.spassword != null and student.spassword != ''">
+                spassword=#{student.spassword},
+            </if>
+            <if test="student.tnumber != null and student.semail != ''">
+                tnumber=#{student.tnumber},
+            </if>
+            <if test="student.semail != null and student.semail != ''">
+                semail=#{student.semail},
+            </if>
+            <if test="student.sage != null">
+                sage=#{student.sage},
+            </if>
+            <if test="student.ssex != null and student.ssex != ''">
+                ssex=#{student.ssex},
+            </if>
+            <if test="student.score != null">
+                score=#{student.score},
+            </if>
+            <if test="student.entertime != null and student.entertime != ''">
+                entertime=#{student.entertime},
+            </if>
+            <if test="student.major != null">
+                major=#{student.major},
+            </if>
+        </set>
+        where id=#{student.id}
+    </update>
+
+    <select id="IsChooseTeacher" parameterType="string" resultType="com.hang.manage.system.domain.Student">
+        SELECT tnumber,choosenum FROM  student where snumber=#{snumber}
+    </select>
+
+
+    <select id="TeaSeeStuChooseStatus" parameterType="string" resultMap="Result">
+        SELECT * from student
+        INNER JOIN college_major on major=college_major.id
+        WHERE  tnumber=#{tnumber}
+    </select>
+
+   <update id="updateStuChooseNum">
+       UPDATE student set choosenum=1 where snumber=#{snumber}
+   </update>
+
+    <update id="updateStuChooseNumjian">
+        UPDATE student set choosenum=0 where snumber=#{snumber}
+    </update>
+
+    <select id="SelectByMajorAndStatus"  resultType="com.hang.manage.system.domain.Student">
+        SELECT snumber,sname,tnumber FROM student where defensegroup is null AND
+        major in
+        <foreach collection="list" item="major" open="(" close=")" separator=",">
+            #{major}
+        </foreach>
+    </select>
+
+    <select id="StuIsGrouped" resultType="integer">
+       select count(1) from student group by defensegroup
+    </select>
+
+    <update id="GroupUpdate">
+        UPDATE student set defensegroup =#{group} where snumber=#{snumber}
+    </update>
+
+    <select id="SeeGroupListStu" resultType="com.hang.manage.system.domain.Student">
+        SELECT snumber,sname,defensegroup,tnumber from student where defensegroup=#{groupname}
+    </select>
+
+    <update id="RemoveGroupStu" parameterType="string">
+        UPDATE student SET defensegroup=null where snumber=#{snumber}
+    </update>
+
+    <select id="FuzzySearchStuGroup" resultType="com.hang.manage.system.domain.Student" >
+        SELECT snumber,sname,defensegroup,tnumber FROM student where CONCAT(IFNULL(`snumber`,''),IFNULL(`sname`,'')) LIKE "%"#{input}"%" and
+        major in
+        <foreach collection="list" item="major" open="(" close=")" separator=",">
+            #{major}
+        </foreach>
+    </select>
+    
+    <select id="GroupedGoOn" resultType="string">
+        SELECT defensegroup from student where defensegroup is not null AND
+        major in
+        <foreach collection="list" item="major" open="(" close=")" separator=",">
+            #{major}
+        </foreach>
+        GROUP BY defensegroup
+    </select>
+
+    <select id="ReplyArrangeList" resultMap="returnCount" >
+     SELECT defensegroup,count(1),place,replytime from student where defensegroup is not null  AND
+        major in
+        <foreach collection="list" item="major" open="(" close=")" separator=",">
+            #{major}
+        </foreach>
+     GROUP BY defensegroup
+    </select>
+    
+    <update id="EnteringPlaceAndTime" >
+        update student set replytime=#{arrangedate} ,place=#{arrangeplace} where defensegroup=#{groupname}
+    </update>
+
+    <select id="SelectStunameandSnumber" resultType="com.hang.manage.system.domain.Student">
+        SELECT snumber,sname from student WHERE
+        major in
+        <foreach collection="list" item="major" open="(" close=")" separator=",">
+            #{major}
+        </foreach>
+        ORDER by score
+    </select>
+
+    <select id="StuReplyResultList" resultType="com.hang.manage.system.domain.Student">
+        SELECT snumber,sname,score,place,replytime from student WHERE
+        major in
+        <foreach collection="list" item="major" open="(" close=")" separator=",">
+            #{major}
+        </foreach>
+    </select>
+
+    <select id="FuzzyStu"  resultType="com.hang.manage.system.domain.Student">
+        SELECT snumber,sname,score,place,replytime from student WHERE CONCAT(IFNULL(`snumber`,''),IFNULL(`sname`,'')) LIKE "%"#{input}"%" and
+        major in
+        <foreach collection="list" item="major" open="(" close=")" separator=",">
+            #{major}
+        </foreach>
+    </select>
+
+
+    <update id="UpdateRefenceDateandTime">
+        UPDATE student SET  place=#{place},replytime=#{replytime} where snumber=#{snumber}
+    </update>
+
+    <update id="UpdateStuScore" >
+        UPDATE student SET score=#{score} where snumber=#{snumber}
+    </update>
+
+</mapper>

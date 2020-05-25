@@ -1,0 +1,48 @@
+server:
+  port: 8023
+spring:
+  datasource:
+      druid:
+        url: jdbc:mysql://192.168.32.137:3306/management_system?useUnicode=true&characterEncoding=utf-8&useSSL=false
+        username: root
+        password: 8023
+        initial-size: 1
+        min-idle: 1
+        max-active: 20
+        test-on-borrow: true
+        # MySQL 8.x: com.mysql.cj.jdbc.Driver
+        driver-class-name: com.mysql.jdbc.Driver
+#redis配置
+  redis:
+      lettuce:
+        pool:
+          max-active: 8
+          max-idle: 8
+          max-wait: -1ms
+          min-idle: 0
+      sentinel:
+        master: mymaster
+        nodes: 192.168.56.111:26379, 192.168.56.111:26380, 192.168.56.111:26381
+#邮箱配置
+  mail:
+    username: 1031948347@qq.com
+    password: mkkajqqyzmupbeeb
+    host: smtp.qq.com
+  data:
+    elasticsearch:
+      cluster-name: docker-cluster
+      cluster-nodes: 192.168.32.143:9301
+
+mybatis:
+  type-aliases-package: com.hang.manage.system.domain
+  mapper-locations: classpath:mapper/*.xml
+#mybatis的二级缓存
+  mybatis:
+    configuration:
+      cache-enabled: true
+
+fastdfs.base.url: http://192.168.56.106:8888/
+storage:
+  type: fastdfs
+  fastdfs:
+    tracker_server: 192.168.56.106:22122

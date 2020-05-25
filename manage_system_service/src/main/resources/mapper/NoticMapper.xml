@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hang.manage.system.mapper.NoticMapper">
+    <resultMap id="BaseResultMap" type="com.hang.manage.system.domain.Notic">
+        <!--
+          WARNING - @mbg.generated
+        -->
+        <id column="id" jdbcType="INTEGER" property="id"/>
+        <result column="title" jdbcType="VARCHAR" property="title"/>
+        <result column="publisher" jdbcType="VARCHAR" property="publisher"/>
+        <result column="publishtime" jdbcType="VARCHAR" property="publishtime"/>
+        <result column="content" jdbcType="LONGVARCHAR" property="content"/>
+        <result column="url" jdbcType="VARCHAR" property="url"/>
+    </resultMap>
+
+    <insert id="insertNotic">
+        INSERT into notic
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="notic.title != null and notic.title != ''">
+                title,
+            </if>
+            <if test="notic.content != null and notic.content != ''">
+                content,
+            </if>
+            <if test="notic.publisher != null and notic.publisher != ''">
+                publisher,
+            </if>
+            <if test="notic.url != null and notic.url != ''">
+                url,
+            </if>
+            <if test="notic.publishtime != null and notic.publishtime != ''">
+                publishtime,
+            </if>
+        </trim>
+        VALUES (
+        <if test="notic.title != null and notic.title != ''">
+            #{notic.title},
+        </if>
+        <if test="notic.content != null and notic.content != ''">
+            #{notic.content},
+        </if>
+        #{notic.publisher},
+        <if test="notic.url != null and notic.url != ''">
+            #{notic.url},
+        </if>
+        #{notic.publishtime}
+        )
+    </insert>
+
+    <select id="fuzzySearchnotic" resultMap="BaseResultMap">
+    SELECT * FROM notic where CONCAT(IFNULL(`title`,''),IFNULL(`content`,'')) LIKE "%"#{input}"%" AND publisher=#{publisher}
+  </select>
+
+    <delete id="deleteNotic">
+    DELETE FROM notic WHERE  id=#{id}
+  </delete>
+
+    <select id="listNotic" resultMap="BaseResultMap">
+        SELECT id,title,content,url,publisher,publishtime ,FROM_UNIXTIME(`publishtime`, '%Y-%m-%d')  FROM notic order by publishtime desc
+    </select>
+
+    <select id="AdminListNotic" resultMap="BaseResultMap">
+        SELECT id,title,content,url,publishtime FROM  notic WHERE publisher=#{publisher}
+    </select>
+
+
+    <select id="UpdateSelectById" parameterType="integer" resultType="com.hang.manage.system.domain.Notic">
+        SELECT * from notic where id=#{id}
+    </select>
+
+
+    <update id="UpdateNotic">
+        UPDATE notic
+        <set>
+            <if test="notic.title != null and notic.title != ''">
+                title=#{notic.title},
+            </if>
+            <if test="notic.content != null and notic.content != ''">
+                content=#{notic.content},
+            </if>
+            <if test="notic.publishtime != null and notic.publishtime != ''">
+                publishtime=#{notic.publishtime},
+            </if>
+            <if test="notic.url != null and notic.url != ''">
+                url=#{notic.url},
+            </if>
+        </set>
+        where id=#{notic.id}
+    </update>
+</mapper>

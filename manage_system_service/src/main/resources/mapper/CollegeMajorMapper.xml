@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hang.manage.system.mapper.CollegeMajorMapper">
+  <resultMap id="BaseResultMap" type="com.hang.manage.system.domain.CollegeMajor">
+    <!--
+      WARNING - @mbg.generated
+    -->
+    <id column="id" jdbcType="INTEGER" property="id" />
+    <result column="parentid" jdbcType="INTEGER" property="parentid" />
+    <result column="name" jdbcType="VARCHAR" property="name" />
+  </resultMap>
+    <select id="selectByname" parameterType="string" resultType="int">
+      SELECT id from college_major WHERE name=#{majorname}
+    </select>
+</mapper>

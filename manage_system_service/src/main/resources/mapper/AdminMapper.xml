@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hang.manage.system.mapper.AdminMapper">
+    <resultMap id="BaseResultMap" type="com.hang.manage.system.domain.Admin">
+        <!--
+          WARNING - @mbg.generated
+        -->
+        <id column="adminid" jdbcType="INTEGER" property="adminid"/>
+        <result column="adminnumber" jdbcType="VARCHAR" property="adminnumber"/>
+        <result column="adminpassword" jdbcType="VARCHAR" property="adminpassword"/>
+        <result column="adminemail" jdbcType="VARCHAR" property="adminemail"/>
+        <result column="pushlisher" jdbcType="VARCHAR" property="pushlisher"/>
+    </resultMap>
+
+    <select id="selectPassword" parameterType="string" resultType="string">
+    SELECT adminpassword from admin WHERE adminnumber=#{adminnumber}
+  </select>
+
+    <update id="updateMyselfInfo" parameterType="com.hang.manage.system.domain.Admin">
+        UPDATE admin
+        <set>
+            <if test="adminemail != null and adminemail != ''">
+                adminemail=#{adminemail}
+            </if>
+            <if test="pushlisher != null and pushlisher != ''">
+                pushlisher=#{pushlisher}
+            </if>
+        </set>
+        where adminnumber=#{adminnumber}
+    </update>
+
+    <update id="updatePassword">
+        UPDATE admin SET adminpassword=#{newpassword} where adminnumber=#{adminnumber}
+    </update>
+
+
+</mapper>

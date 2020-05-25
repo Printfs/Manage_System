@@ -1,0 +1,297 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hang.manage.system.mapper.PaperMapper">
+    <resultMap id="BaseResultMap" type="com.hang.manage.system.domain.Paper">
+        <!--
+          WARNING - @mbg.generated
+        -->
+        <id column="pid" jdbcType="INTEGER" property="pid"/>
+        <result column="tnumber" jdbcType="VARCHAR" property="tnumber"/>
+        <result column="title" jdbcType="VARCHAR" property="title"/>
+        <result column="description" jdbcType="VARCHAR" property="description"/>
+        <result column="url" jdbcType="VARCHAR" property="url"/>
+        <result column="status" jdbcType="INTEGER" property="status"/>
+        <result column="comment" jdbcType="VARCHAR" property="comment"/>
+        <result column="uploadtime" jdbcType="VARCHAR" property="uploadtime"/>
+        <result column="snumber" jdbcType="VARCHAR" property="snumber"/>
+        <result column="mark" jdbcType="INTEGER" property="mark"/>
+        <result column="assignmentbookurl" jdbcType="VARCHAR" property="assignmentbookurl"/>
+        <result column="assignstatus" jdbcType="INTEGER" property="assignstatus"/>
+        <result column="proposalpurpose" jdbcType="VARCHAR" property="proposalpurpose"/>
+        <result column="proposalreview" jdbcType="VARCHAR" property="proposalreview"/>
+        <result column="mediumcheck" jdbcType="VARCHAR" property="mediumcheck"/>
+        <result column="mediumcheckstatus" jdbcType="INTEGER" property="mediumcheckstatus"/>
+        <result column="translationoriginalurl" jdbcType="VARCHAR" property="translationoriginalurl"/>
+        <result column="translationurl" jdbcType="VARCHAR" property="translationurl"/>
+        <result column="version" jdbcType="INTEGER" property="version"/>
+
+    </resultMap>
+
+    <sql id="baseSql">
+    pid,tnumber,title,description,url,status,comment,uploadtime,snumber,mark,difficultylevel
+  </sql>
+
+
+
+    <select id="my_fuzzy_select" resultMap="BaseResultMap">
+        SELECT
+        <include refid="baseSql"/>
+        FROM paper WHERE CONCAT(IFNULL(`title`,''),IFNULL(`description`,'')) LIKE "%"#{title}"%" and tnumber=#{tnumber}
+    </select>
+    <!--批量插入-->
+    <insert id="insert_many_data">
+        INSERT into paper(tnumber,title,description,url,difficultylevel,status,comment,uploadtime) VALUES
+        <foreach collection="list" separator="," item="p">
+            (
+            <if test="p.tnumber != null and p.tnumber != ''">#{p.tnumber},</if>
+            <if test="p.title != null and p.title != ''">#{p.title},</if>
+            <if test="p.description != null and p.description != ''">#{p.description},</if>
+            <if test="p.url != null and p.url != ''">#{p.url},</if>
+            <if test="p.difficultylevel != null and p.difficultylevel != ''">#{p.difficultylevel},</if>
+            #{p.status} ,
+            <if test="p.comment != null and p.comment != ''">#{p.comment},</if>
+            <if test="p.uploadtime != null and p.uploadtime != ''">
+                #{p.uploadtime}
+            </if>
+            )
+        </foreach>
+
+    </insert>
+
+    <update id="update_paper_snumber">
+    UPDATE paper SET snumber=#{snumber} where pid=#{pid}
+  </update>
+
+    <select id="selectBysnumber" parameterType="string" resultType="com.hang.manage.system.domain.Paper">
+        SELECT
+        pid,title,status,mark,declarestatus,url,uploadtime,version  from paper where snumber = #{snumber}
+    </select>
+
+    <select id="selectStuPaper" parameterType="string" resultType="com.hang.manage.system.domain.Paper">
+        SELECT title,status from paper where snumber = #{snumber} and snumber in (SELECT snumber from paper where snumber != "");
+    </select>
+
+
+
+    <select id="seeStuDeclareProject" resultType="com.hang.manage.system.domain.Paper"
+            parameterType="string">
+        SELECT
+        title,description,url,declarestatus,snumber,uploadtime,mark
+        from paper WHERE tnumber=#{tnumber} and mark= 1
+    </select>
+
+    <update id="updateIsPass">
+        UPDATE paper <set>
+        declarestatus=#{declarestatus},
+        <if test=" url.equals(null) ">
+            url=#{url}
+        </if>
+        </set>
+        where snumber=#{snumber}
+    </update>
+
+    <select id="selectCountBySnumber" parameterType="string" resultType="int">
+        SELECT COUNT(1) from paper where snumber=#{snumber}
+    </select>
+
+    <select id="TeaListPaper" parameterType="string" resultType="com.hang.manage.system.domain.Paper">
+        SELECT
+        <include refid="baseSql"/>
+        FROM paper where tnumber=#{tnumber} and mark=0
+    </select>
+
+
+    <delete id="TeaDeleteMySelfPaper" parameterType="integer">
+        DELETE FROM paper where pid=#{pid}
+    </delete>
+
+
+    <update id="TeaUpdateMySelfPaper">
+        UPDATE paper
+        <set>
+            <if test="paper.title != null and paper.title != ''">
+                title=#{paper.title},
+            </if>
+            <if test="paper.description != null and paper.description != ''">
+                description=#{paper.description},
+            </if>
+            <if test="paper.url != null and paper.url != ''">
+                url=#{paper.url},
+            </if>
+            <if test="paper.difficultylevel != null and paper.difficultylevel != ''">
+                difficultylevel=#{paper.difficultylevel},
+            </if>
+        </set>
+        where pid=#{paper.pid}
+    </update>
+
+
+    <select id="selectIsUpdate" parameterType="string" resultType="int">
+        SELECT isupdate FROM paper WHERE snumber=#{snumber}
+    </select>
+
+    <update id="uploadassignmentbook">
+        UPDATE paper SET assignmentbookurl=#{assignmentbookurl},assignstatus=0 where pid=#{pid}
+    </update>
+
+    <select id="IsSubmitAssign" parameterType="string" resultType="string">
+        SELECT assignmentbookurl from paper where snumber=#{number}
+    </select>
+
+    <select id="selectAssign" resultType="com.hang.manage.system.domain.Paper">
+        SELECT pid,title,assignmentbookurl,assignstatus,proposalpurpose,proposalreview,proposalstatus FROM paper
+        WHERE snumber=#{snumber}
+    </select>
+
+    <update id="UploadOpenReport">
+        UPDATE paper SET proposalpurpose=#{url1} ,proposalreview=#{url2},proposalstatus=0  WHERE  snumber=#{snumber}
+    </update>
+
+    <select id="selectAssignStatusBySnumber" resultType="int" parameterType="string">
+        SELECT assignstatus from paper where snumber=#{snumber}
+    </select>
+
+    <select id="selectOpenReportUrl" resultType="com.hang.manage.system.domain.Paper" parameterType="string">
+        SELECT title,url,status,comment,proposalpurpose,proposalreview,proposalstatus,mediumcheck,mediumcheckstatus,translationurl from paper where snumber=#{snumber}
+    </select>
+
+    <update id="UpdateMidleCheck">
+        UPDATE paper SET mediumcheck=#{mediumcheck},mediumcheckstatus=0 where snumber=#{snumber}
+    </update>
+
+    <update id="replyrecordurlUpload">
+        UPDATE paper SET replyrecordurl=#{replyrecordurl} where snumber=#{snumber}
+    </update>
+
+    <select id="stuAssignList" resultType="com.hang.manage.system.domain.Paper" parameterType="string">
+         SELECT title,snumber,assignmentbookurl,assignstatus from paper where tnumber=#{tnumber}  and snumber != "" and (mark =0 or (mark =1 and declarestatus =1))
+    </select>
+
+    <update id="updateAssignStatusIspass">
+        UPDATE paper
+        <set>
+            <if test="assignstatus != null">
+                assignstatus=#{assignstatus},
+            </if>
+            <if test="assignmentbookurl != null and assignmentbookurl != ''">
+                assignmentbookurl=#{assignmentbookurl},
+            </if>
+        </set>
+        where snumber=#{snumber}
+    </update>
+
+    <select id="stuOpenReportList" resultType="com.hang.manage.system.domain.Paper" parameterType="string">
+        SELECT title,snumber,proposalpurpose,proposalreview,proposalstatus from paper where tnumber=#{tnumber}  and snumber is not null and  assignstatus =1
+    </select>
+
+
+    <update id="UpdateOpenReportIsPass">
+        UPDATE paper
+        <set>
+            <if test="proposalstatus != null">
+                proposalstatus=#{proposalstatus},
+            </if>
+            <if test="proposalpurpose != null and proposalpurpose != ''">
+                proposalpurpose=#{proposalpurpose},
+            </if>
+            <if test="proposalreview != null and proposalpurpose != ''">
+                proposalreview=#{proposalreview},
+            </if>
+        </set>
+        where snumber=#{snumber}
+    </update>
+
+    <select id="stuMidelCheckList" resultType="com.hang.manage.system.domain.Paper" parameterType="string">
+        SELECT  title,snumber,mediumcheck,mediumcheckstatus from paper where tnumber=#{tnumber}  and snumber is not null and  proposalstatus =1
+    </select>
+
+
+    <update id="TeaCheckMidelCheckIsPass">
+        UPDATE paper
+        <set>
+            <if test="mediumcheckstatus != null">
+                mediumcheckstatus=#{mediumcheckstatus},
+            </if>
+            <if test="mediumcheck != null and mediumcheck != ''">
+                mediumcheck=#{mediumcheck},
+            </if>
+        </set>
+        where snumber=#{snumber}
+    </update>
+
+
+    <select id="paperFinalizeList" resultType="com.hang.manage.system.domain.Paper" parameterType="string">
+    SELECT title,status,url,translationoriginalurl,translationurl,snumber FROM paper where tnumber=#{tnumber} AND  snumber is not null and mediumcheckstatus=1
+    </select>
+
+    <update id="StudentFinalizePaperIsPass">
+        UPDATE paper
+        <set>
+            <if test="status != null">
+                status=#{status},
+            </if>
+            <if test="url != null and url != ''">
+                url=#{url},
+            </if>
+        </set>
+        WHERE snumber=#{snumber}
+    </update>
+
+
+    <select id="stu_paper" parameterType="string" resultType="com.hang.manage.system.domain.Paper">
+        SELECT title,mark,declarestatus from paper where snumber=#{snumber}
+    </select>
+
+
+    <select id="TeaSeeListMyselfPaper" parameterType="string" resultType="com.hang.manage.system.domain.Paper">
+        SELECT  pid,title,description,url,snumber,difficultylevel from paper where tnumber=#{tnumber} and mark=0
+    </select>
+
+
+    <select id="PassPaperFinallyNum" resultType="int">
+        SELECT count(1) from paper where status=1 and snumber is not null and tnumber in
+        <foreach collection="list" index="index" item="tnum" open="(" separator="," close=")">
+            #{tnum}
+        </foreach>
+
+    </select>
+
+
+
+    <select id="GroupPaper" resultType="string" parameterType="string">
+        SELECT title from paper where snumber=#{snumber}
+    </select>
+
+     <update id="UpdatePaperVersion">
+         UPDATE paper SET  version=#{version} where snumber=#{snumber}
+     </update>
+
+    <select id="SelectPaperInfo" resultType="com.hang.manage.system.domain.Paper" parameterType="integer">
+        SELECT pid,title,url,snumber from paper where pid=#{id}
+    </select>
+
+    <select id="SelectBySnumber" parameterType="string" resultType="com.hang.manage.system.domain.Paper">
+        SELECT pid,title,url from paper where snumber=#{snumber} and esstatus= 0
+    </select>
+
+    <update id="upadtePaperEsstatus" parameterType="integer">
+        UPDATE paper SET esstatus=1 where pid=#{id}
+    </update>
+
+    <select id="selectPaperTitleAndVersion" resultType="com.hang.manage.system.domain.Paper">
+        SELECT title,status,version from paper where snumber=#{snumber}
+    </select>
+
+
+    <update id="UpdateRefenceResultStatus" >
+        UPDATE paper <set>
+        status=#{status},
+        <if test="version != 0">
+            version=#{version}
+        </if>
+      </set>
+
+        where snumber=#{snumber}
+    </update>
+
+</mapper>

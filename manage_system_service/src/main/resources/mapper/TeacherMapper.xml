@@ -1,0 +1,139 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hang.manage.system.mapper.TeacherMapper">
+    <resultMap id="BaseResultMap" type="com.hang.manage.system.domain.Teacher">
+        <!--
+          WARNING - @mbg.generated
+        -->
+        <id column="id" jdbcType="INTEGER" property="id"/>
+        <result column="tnumber" jdbcType="VARCHAR" property="tnumber"/>
+        <result column="tname" jdbcType="VARCHAR" property="tname"/>
+        <result column="tpassword" jdbcType="VARCHAR" property="tpassword"/>
+        <result column="tpermission" jdbcType="INTEGER" property="tpermission"/>
+        <result column="temail" jdbcType="VARCHAR" property="temail"/>
+        <result column="tsex" jdbcType="VARCHAR" property="tsex"/>
+        <result column="tage" jdbcType="INTEGER" property="tage"/>
+        <result column="allowastunumber" jdbcType="INTEGER" property="allowastunumber"/>
+    </resultMap>
+
+    <select id="login" resultType="com.hang.manage.system.domain.Teacher" parameterType="string">
+        SELECT tnumber,tpassword from teacher where tnumber=#{tnumber}
+    </select>
+
+    <select id="select_allow_student" parameterType="String" resultType="java.lang.Integer">
+    SELECT allowastunumber from teacher WHERE tnumber=#{tnumber}
+  </select>
+
+
+    <!--******-->
+    <update id="update_stu_number" parameterType="String">
+    UPDATE teacher SET allowastunumber=allowastunumber-1 WHERE tnumber=#{tnumber}
+  </update>
+
+    <!--******-->
+    <update id="update_stu_number_orign" parameterType="String">
+        UPDATE teacher SET allowastunumber=allowastunumber+1 WHERE tnumber=#{tnumber}
+    </update>
+
+
+    <select id="select_fuuzy" resultMap="BaseResultMap">
+    SELECT * from teacher WHERE tname LIKE "%"#{tname}"%" and college=#{college}
+  </select>
+
+    <select id="select_tea_permission" parameterType="string" resultType="integer">
+    SELECT tpermission from teacher where tnumber=#{tnumber}
+  </select>
+
+    <select id="select_tea_college" parameterType="string" resultType="integer">
+    SELECT college FROM teacher where tnumber=#{tnumber}
+  </select>
+
+    <select id="select_teachername" parameterType="string" resultType="string">
+    SELECT tname from teacher where tnumber=#{tnumber}
+  </select>
+
+    <update id="update_tea_info" parameterType="com.hang.manage.system.domain.Teacher">
+        UPDATE teacher
+        <set>
+            <if test="tname != null and tname != ''">
+                tname=#{tname},
+            </if>
+            <if test="temail != null and temail != ''">
+                temail=#{temail},
+            </if>
+            <if test="tsex != null and tsex != ''">
+                tsex=#{tsex},
+            </if>
+            <if test="tage != null">
+                tage=#{tage},
+            </if>
+            <if test="allowastunumber != null">
+                allowastunumber=#{allowastunumber},
+            </if>
+            <if test="college != null">
+                college=#{college},
+            </if>
+            <if test="direction != null and tsex != ''">
+                direction=#{direction},
+            </if>
+        </set>
+        where tnumber =#{tnumber}
+    </update>
+
+    <select id="select_password" parameterType="string" resultType="string">
+        SELECT tpassword from teacher where tnumber=#{tnumber}
+    </select>
+
+    <update id="update_password">
+        UPDATE teacher SET tpassword=#{newpassword} where tnumber=#{tnumber}
+    </update>
+
+    <select id="select_tea_email" resultType="string" parameterType="string">
+        SELECT temail from teacher  where tnumber=#{tnumber}
+    </select>
+
+    <update id="NoLogin_update_password">
+        UPDATE teacher SET  tpassword=#{newpassword} where temail=#{temail}
+    </update>
+
+    <select id="selectByTnumber" parameterType="string" resultType="com.hang.manage.system.domain.Teacher">
+        SELECT * from teacher where tnumber=#{tnumber}
+    </select>
+
+    <update id="AdminUpdateTeacher" parameterType="com.hang.manage.system.domain.Teacher">
+        UPDATE teacher
+        <set>
+            <if test="teacher.tpermission != null and teacher.tpermission != ''">
+                tpermission=#{teacher.tpermission},
+            </if>
+            <if test="teacher.allowastunumber != null">
+                allowastunumber=#{teacher.allowastunumber},
+            </if>
+            <if test="teacher.temail != null and teacher.temail != ''">
+                temail=#{teacher.temail}
+            </if>
+        </set>
+        where tnumber=#{teacher.tnumber}
+    </update>
+
+    <select id="selectCountByEmail" parameterType="string" resultType="int">
+        SELECT count(1) from teacher where temail=#{temail}
+    </select>
+
+    <select id="selectAllTea" resultType="com.hang.manage.system.domain.Teacher">
+        SELECT tnumber,tname,temail,allowastunumber,college,direction,tpermission from teacher
+    </select>
+    
+    <select id="FuzzySearchTeacher" resultType="com.hang.manage.system.domain.Teacher" parameterType="string">
+        SELECT tnumber,tname,temail,allowastunumber,college,direction,tpermission from teacher where CONCAT(IFNULL(`tname`,''),IFNULL(`tnumber`,'')) LIKE "%"#{name}"%"
+    </select>
+
+    <select id="selectByMajor" resultType="String" parameterType="integer">
+        SELECT tnumber from teacher where college=#{college}
+    </select>
+
+
+    <select id="SelectByTeaCollege" parameterType="integer" resultType="com.hang.manage.system.domain.Teacher">
+        SELECT tnumber,tname from teacher where college=#{college}
+    </select>
+</mapper>
